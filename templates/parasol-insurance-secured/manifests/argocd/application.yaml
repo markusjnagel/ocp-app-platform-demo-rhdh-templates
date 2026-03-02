@@ -12,7 +12,7 @@ spec:
   project: default
   source:
     path: helm
-    repoURL: ${{ values.source_gitops_repo_url }}
+    repoURL: https://${{ values.gitlab_host }}/${{ values.owner }}/parasol-insurance-secured-${{ values.branch }}-gitops.git
     targetRevision: main
   syncPolicy:
     automated:

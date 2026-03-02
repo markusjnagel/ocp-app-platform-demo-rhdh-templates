@@ -64,7 +64,6 @@ spec:
           gitlab_host: ${{ parameters.gitlab_host }}
           cluster_subdomain: ${{ parameters.cluster_subdomain }}
           gitops_namespace: ${{ parameters.gitops_namespace }}
-          source_gitops_repo_url: ${{ steps.publish.output.remoteUrl }}
 
     - id: publish
       name: Publish to GitLab
