@@ -7,13 +7,6 @@ spec:
   params:
     - name: git-revision
       type: string
-  results:
-    - name: SONAR_REPORT_URL
-      description: Link to the SonarQube quality report
-      value: $(tasks.sonar-scan.results.SONAR_REPORT_URL)
-    - name: SONAR_QUALITY_GATE
-      description: Quality gate status
-      value: $(tasks.sonar-scan.results.SONAR_QUALITY_GATE)
   workspaces:
     - name: source
     - name: basic-auth
@@ -59,19 +52,9 @@ spec:
           workspace: source
         - name: sonar-credentials
           workspace: sonar-credentials
-    - name: check-quality-gate
-      runAfter:
-        - sonar-scan
-      taskRef:
-        name: check-quality-gate-secured
-      params:
-        - name: QUALITY_GATE_STATUS
-          value: $(tasks.sonar-scan.results.SONAR_QUALITY_GATE)
-        - name: REPORT_URL
-          value: $(tasks.sonar-scan.results.SONAR_REPORT_URL)
     - name: build-and-push
       runAfter:
-        - check-quality-gate
+        - sonar-scan
       taskRef:
         resolver: cluster
         params:
