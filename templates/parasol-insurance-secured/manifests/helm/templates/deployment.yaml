@@ -22,7 +22,6 @@ spec:
       labels:
         app: parasol-insurance-secured
         backstage.io/kubernetes-id: parasol-insurance-secured
-        sidecar.istio.io/inject: "true"
     spec:
       containers:
         - name: parasol-insurance-secured
