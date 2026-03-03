@@ -6,6 +6,8 @@ metadata:
   labels:
     app: parasol-insurance-secured
     app.kubernetes.io/name: parasol-insurance-secured
+    app.kubernetes.io/part-of: parasol-insurance-secured
+    backstage.io/kubernetes-id: parasol-insurance-secured
   annotations:
     app.openshift.io/vcs-uri: "${{ values.source_repo }}"
 spec:
@@ -17,6 +19,7 @@ spec:
     metadata:
       labels:
         app: parasol-insurance-secured
+        backstage.io/kubernetes-id: parasol-insurance-secured
         sidecar.istio.io/inject: "true"
     spec:
       containers:
