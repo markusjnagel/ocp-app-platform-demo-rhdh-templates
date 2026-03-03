@@ -27,6 +27,7 @@ spec:
       containers:
         - name: parasol-insurance-secured
           image: "${{ values.image_host }}/${{ values.image_organization }}/${{ values.image_name }}:${{ values.image_tag }}"
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
               protocol: TCP
