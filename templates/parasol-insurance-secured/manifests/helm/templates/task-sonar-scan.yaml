@@ -67,4 +67,6 @@ spec:
         echo "============================================"
         echo ""
 
-        exit ${SCAN_EXIT}
+        # Always exit 0 so results propagate to Pipeline level
+        # The check-quality-gate task will fail the pipeline if needed
+        exit 0

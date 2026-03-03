@@ -7,6 +7,13 @@ spec:
   params:
     - name: git-revision
       type: string
+  results:
+    - name: SONAR_REPORT_URL
+      description: Link to the SonarQube quality report
+      value: $(tasks.sonar-scan.results.SONAR_REPORT_URL)
+    - name: SONAR_QUALITY_GATE
+      description: Quality gate status
+      value: $(tasks.sonar-scan.results.SONAR_QUALITY_GATE)
   workspaces:
     - name: source
     - name: basic-auth
@@ -35,9 +42,36 @@ spec:
           workspace: source
         - name: basic-auth
           workspace: basic-auth
-    - name: build-and-push
+    - name: sonar-scan
+      runAfter:
+        - clone-source
+      taskRef:
+        name: sonar-scan-secured
+      params:
+        - name: SONAR_HOST_URL
+          value: "http://sonarqube.sonarqube.svc:9000"
+        - name: SONAR_DASHBOARD_URL
+          value: "https://sonarqube-sonarqube.${{ values.cluster_subdomain }}"
+        - name: SONAR_PROJECT_KEY
+          value: parasol-insurance
+      workspaces:
+        - name: source
+          workspace: source
+        - name: sonar-credentials
+          workspace: sonar-credentials
+    - name: check-quality-gate
       runAfter:
         - sonar-scan
+      taskRef:
+        name: check-quality-gate-secured
+      params:
+        - name: QUALITY_GATE_STATUS
+          value: $(tasks.sonar-scan.results.SONAR_QUALITY_GATE)
+        - name: REPORT_URL
+          value: $(tasks.sonar-scan.results.SONAR_REPORT_URL)
+    - name: build-and-push
+      runAfter:
+        - check-quality-gate
       taskRef:
         resolver: cluster
         params:
@@ -69,20 +103,3 @@ spec:
       params:
         - name: DEPLOYMENT
           value: parasol-insurance-secured
-    - name: sonar-scan
-      runAfter:
-        - clone-source
-      taskRef:
-        name: sonar-scan-secured
-      params:
-        - name: SONAR_HOST_URL
-          value: "http://sonarqube.sonarqube.svc:9000"
-        - name: SONAR_DASHBOARD_URL
-          value: "https://sonarqube-sonarqube.${{ values.cluster_subdomain }}"
-        - name: SONAR_PROJECT_KEY
-          value: parasol-insurance
-      workspaces:
-        - name: source
-          workspace: source
-        - name: sonar-credentials
-          workspace: sonar-credentials
