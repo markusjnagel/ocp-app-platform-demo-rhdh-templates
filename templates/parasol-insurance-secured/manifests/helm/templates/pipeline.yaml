@@ -77,6 +77,8 @@ spec:
       params:
         - name: SONAR_HOST_URL
           value: "http://sonarqube.sonarqube.svc:9000"
+        - name: SONAR_DASHBOARD_URL
+          value: "https://sonarqube-sonarqube.${{ values.cluster_subdomain }}"
         - name: SONAR_PROJECT_KEY
           value: parasol-insurance
       workspaces:
