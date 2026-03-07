@@ -7,6 +7,10 @@ spec:
   params:
     - name: git-revision
       type: string
+  results:
+    - name: ACS_IMAGE_SCAN_OUTPUT
+      description: ACS vulnerability summary for Developer Hub
+      value: $(tasks.acs-image-scan.results.SCAN_OUTPUT)
   workspaces:
     - name: source
     - name: basic-auth
@@ -35,26 +39,26 @@ spec:
           workspace: source
         - name: basic-auth
           workspace: basic-auth
-    - name: sonar-scan
-      runAfter:
-        - clone-source
-      taskRef:
-        name: sonar-scan-secured
-      params:
-        - name: SONAR_HOST_URL
-          value: "http://sonarqube.sonarqube.svc:9000"
-        - name: SONAR_DASHBOARD_URL
-          value: "https://sonarqube-sonarqube.${{ values.cluster_subdomain }}"
-        - name: SONAR_PROJECT_KEY
-          value: parasol-insurance
-      workspaces:
-        - name: source
-          workspace: source
-        - name: sonar-credentials
-          workspace: sonar-credentials
+    # - name: sonar-scan
+    #   runAfter:
+    #     - clone-source
+    #   taskRef:
+    #     name: sonar-scan-secured
+    #   params:
+    #     - name: SONAR_HOST_URL
+    #       value: "http://sonarqube.sonarqube.svc:9000"
+    #     - name: SONAR_DASHBOARD_URL
+    #       value: "https://sonarqube-sonarqube.${{ values.cluster_subdomain }}"
+    #     - name: SONAR_PROJECT_KEY
+    #       value: parasol-insurance
+    #   workspaces:
+    #     - name: source
+    #       workspace: source
+    #     - name: sonar-credentials
+    #       workspace: sonar-credentials
     - name: build-and-push
       runAfter:
-        - sonar-scan
+        - clone-source
       taskRef:
         resolver: cluster
         params:
@@ -78,9 +82,26 @@ spec:
           workspace: source
         - name: dockerconfig
           workspace: dockerconfig
-    - name: rollout-restart
+    - name: acs-image-scan
       runAfter:
         - build-and-push
+      taskRef:
+        name: acs-image-scan-secured
+      params:
+        - name: IMAGE
+          value: "${{ values.image_host }}/${{ values.image_organization }}/${{ values.image_name }}:${{ values.image_tag }}"
+    - name: acs-image-check
+      runAfter:
+        - build-and-push
+      taskRef:
+        name: acs-image-check-secured
+      params:
+        - name: IMAGE
+          value: "${{ values.image_host }}/${{ values.image_organization }}/${{ values.image_name }}:${{ values.image_tag }}"
+    - name: rollout-restart
+      runAfter:
+        - acs-image-scan
+        - acs-image-check
       taskRef:
         name: rollout-restart-secured
       params:
